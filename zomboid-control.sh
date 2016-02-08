@@ -112,32 +112,25 @@ do
             echo "Starting server..." | tee /dev/fd/3
             start | tee /dev/fd/3
             echo "Complete." | tee /dev/fd/3
-            echo
-            echo $title | tee /dev/fd/3
             ;;
         "Stop server")
             echo "Stopping server..." | tee /dev/fd/3
             stop | tee /dev/fd/3
             echo "Complete." | tee /dev/fd/3
-            echo
-            echo $title | tee /dev/fd/3
+            clear
             ;;
         "Update stopped server")
             echo "Updating server..." | tee /dev/fd/3
             update | tee /dev/fd/3
             echo "Complete." | tee /dev/fd/3
-            echo
-            echo $title | tee /dev/fd/3
             ;;
         "Update running server")
 			echo "Updating server..." | tee /dev/fd/3
 			updateRunning | tee /dev/fd/3
 			echo "Complete." | tee /dev/fd/3
-			echo
-			echo $title | tee /dev/fd/3
 			;;
         "Quit")
-            break
+            exit
             ;;
         *) echo invalid option;;
     esac
