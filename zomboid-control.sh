@@ -101,7 +101,7 @@ stop()
 
 title="\e[1mZomboid server control panel\e[0m"
 prompt="Pick an option: "
-options=("Start server" "Stop server" "Update stopped server" "Update running server" "Quit")
+options=("Start server" "Stop server" "Restart server" "Update stopped server" "Update running server" "Quit")
 
 echo -e $title 1>&3
 if screen -list | grep -q "zomboid"; then
@@ -122,6 +122,13 @@ do
         "Stop server")
             echo "Stopping server..." | tee /dev/fd/3
             stop | tee /dev/fd/3
+            echo "Complete." | tee /dev/fd/3
+            clear
+            ;;
+        "Restart server")
+            echo "Restarting server..." | tee /dev/fd/3
+            stop | tee /dev/fd/3
+            start | tee /dev/fd/3
             echo "Complete." | tee /dev/fd/3
             clear
             ;;
