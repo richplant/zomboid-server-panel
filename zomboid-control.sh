@@ -104,6 +104,12 @@ prompt="Pick an option: "
 options=("Start server" "Stop server" "Update stopped server" "Update running server" "Quit")
 
 echo $title 1>&3
+if screen -list | grep -q "zomboid"; then
+	echo "Screen session is running." 1>&3
+else
+	echo "Screen session is not running." 1>&3
+fi
+echo 1>&3
 PS3="$prompt"
 select opt in "${options[@]}"
 do
