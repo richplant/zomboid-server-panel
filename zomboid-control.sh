@@ -23,16 +23,16 @@ updateRunning()
 {
 	echo -n `date` && echo " Quitting Project Zomboid"
 	say_this "quit"
-	echo -ne '           (00%)\r'
-	sleep 15
-	echo -ne '##         (25%)\r'
-	sleep 15
-	echo -ne '#####      (50%)\r'
-	sleep 15
-	echo -ne '#######    (75%)\r'
-	sleep 15
-	echo -ne '########## (100%)\r'
-	echo -ne '\n'
+	while true
+	do
+		tail -1 screenlog.0 | grep -q "Project Zomboid Dedicated Server"
+		if [ $? = 0 ]
+		then
+			break
+		else
+			sleep 1
+		fi
+	done
 	echo
 
 	echo -n `date` && echo " Running steamcmd update"
@@ -43,39 +43,39 @@ updateRunning()
 	echo -n `date` && echo " Restarting Project Zomboid"
 	say_this "cd $BASEDIR"
 	say_this "./start-server.sh"
-	echo -ne '           (00%)\r'
-	sleep 15
-	echo -ne '##         (25%)\r'
-	sleep 15
-	echo -ne '#####      (50%)\r'
-	sleep 15
-	echo -ne '#######    (75%)\r'
-	sleep 15
-	echo -ne '########## (100%)\r'
-	echo -ne '\n'
+	while true
+	do
+		tail -1 screenlog.0 | grep -q "Zomboid Server is VAC Secure"
+		if [ $? = 0 ]
+		then
+			break
+		else
+			sleep 1
+		fi
+	done
 	echo
 }
 
 start()
 {
 	echo -n `date` && echo " Starting screen session"
+	rm screenlog.*
 	screen -L -d -m -S zomboid
 	echo
 
 	echo -n `date` && echo " Starting Project Zomboid"
 	say_this "cd $BASEDIR"
 	say_this "./start-server.sh"
-
-	echo -ne '           (00%)\r'
-	sleep 15
-	echo -ne '##         (25%)\r'
-	sleep 15
-	echo -ne '#####      (50%)\r'
-	sleep 15
-	echo -ne '#######    (75%)\r'
-	sleep 15
-	echo -ne '########## (100%)\r'
-	echo -ne '\n'
+	while true
+	do
+		tail -1 screenlog.0 | grep -q "Zomboid Server is VAC Secure"
+		if [ $? = 0 ]
+		then
+			break
+		else
+			sleep 1
+		fi
+	done
 	echo
 }
 
@@ -83,16 +83,17 @@ stop()
 {
 	echo -n `date` && echo " Stopping Project Zomboid"
 	say_this "quit"
-	echo -ne '           (00%)\r'
-	sleep 15
-	echo -ne '##         (25%)\r'
-	sleep 15
-	echo -ne '#####      (50%)\r'
-	sleep 15
-	echo -ne '#######    (75%)\r'
-	sleep 15
-	echo -ne '########## (100%)\r'
-	echo -ne '\n'
+	while true
+	do
+		tail -1 screenlog.0 | grep -q "Project Zomboid Dedicated Server"
+		if [ $? = 0 ]
+		then
+			break
+		else
+			sleep 1
+		fi
+	done
+	rm screenlog.*
 	echo
 
 	echo -n `date` && echo " Stopping screen session"
@@ -100,12 +101,21 @@ stop()
 	echo
 }
 
+status()
+{
+	if screen -list | grep -q "zomboid"; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 title="\e[1mZomboid server control panel\e[0m"
 prompt="Pick an option: "
 options=("Start server" "Stop server" "Restart server" "Update server" "Quit")
 
 echo -e $title 1>&3
-if screen -list | grep -q "zomboid"; then
+if status; then
 	echo -e "Screen session is \e[32mrunning\e[0m." 1>&3
 else
 	echo -e "Screen session is \e[31mnot running\e[0m." 1>&3
@@ -117,16 +127,16 @@ select opt in "${options[@]}"
 do
     case $opt in
         "Start server")
-			if [[! screen -list | grep -q "zomboid"]]; then
-	            echo "Starting server..." | tee /dev/fd/3
+			if status; then
+	        	echo "Server is already running."
+	        else
+	        	echo "Starting server..." | tee /dev/fd/3
 	            start | tee /dev/fd/3
 	            echo "Complete." | tee /dev/fd/3
-	        else
-	        	echo "Server is already running."
 	        fi
 	        ;;
         "Stop server")
-			if [[screen -list | grep -q "zomboid"]]; then
+			if status; then
 	            echo "Stopping server..." | tee /dev/fd/3
 	            stop | tee /dev/fd/3
 	            echo "Complete." | tee /dev/fd/3
@@ -135,7 +145,7 @@ do
 	        fi
 	        ;;
         "Restart server")
-			if [[screen -list | grep -q "zomboid"]]; then
+			if status; then
 	            echo "Restarting server..." | tee /dev/fd/3
 	            stop | tee /dev/fd/3
 	            start | tee /dev/fd/3
@@ -145,7 +155,7 @@ do
 	        fi
 	        ;;
         "Update server")
-			if [[screen -list | grep -q "zomboid"]]; then
+			if status; then
 	            echo "Updating server..." | tee /dev/fd/3
 	            updateRunning | tee /dev/fd/3
 	            echo "Complete." | tee /dev/fd/3
