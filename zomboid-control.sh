@@ -45,7 +45,7 @@ updateRunning()
 	say_this "./start-server.sh"
 	while true
 	do
-		tail -1 screenlog.0 | grep -q "Zomboid Server is VAC Secure"
+		tail -1 screenlog.0 | grep -q -E 'Zomboid Server is VAC Secure|Bad thread local'
 		if [ $? = 0 ]
 		then
 			break
@@ -68,7 +68,7 @@ start()
 	say_this "./start-server.sh"
 	while true
 	do
-		tail -1 screenlog.0 | grep -q "Zomboid Server is VAC Secure"
+		tail -1 screenlog.0 | grep -q -E 'Zomboid Server is VAC Secure|Bad thread local'
 		if [ $? = 0 ]
 		then
 			break
@@ -128,7 +128,7 @@ do
     case $opt in
         "Start server")
 			if status; then
-	        	echo "Server is already running."
+	        	echo "Server is already running." | tee /dev/fd/3
 	        else
 	        	echo "Starting server..." | tee /dev/fd/3
 	            start | tee /dev/fd/3
@@ -141,7 +141,7 @@ do
 	            stop | tee /dev/fd/3
 	            echo "Complete." | tee /dev/fd/3
 	        else
-	        	echo "Server is already stopped."
+	        	echo "Server is already stopped." | tee /dev/fd/3
 	        fi
 	        ;;
         "Restart server")
@@ -151,7 +151,7 @@ do
 	            start | tee /dev/fd/3
 	            echo "Complete." | tee /dev/fd/3
 	        else
-	        	echo "Server is not running."
+	        	echo "Server is not running." | tee /dev/fd/3
 	        fi
 	        ;;
         "Update server")
