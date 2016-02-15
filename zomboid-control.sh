@@ -99,15 +99,15 @@ stop()
 	echo
 }
 
-title="Zomboid server control panel"
+title="\e[1mZomboid server control panel\e[0m"
 prompt="Pick an option: "
 options=("Start server" "Stop server" "Update stopped server" "Update running server" "Quit")
 
-echo $title 1>&3
+echo -e $title 1>&3
 if screen -list | grep -q "zomboid"; then
-	echo "Screen session is running." 1>&3
+	echo -e "Screen session is \e[32mrunning\e[0m." 1>&3
 else
-	echo "Screen session is not running." 1>&3
+	echo -e "Screen session is \e[31mnot running\e[0m." 1>&3
 fi
 echo 1>&3
 PS3="$prompt"
