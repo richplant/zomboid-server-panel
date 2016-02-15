@@ -59,12 +59,13 @@ updateRunning()
 start()
 {
 	echo -n `date` && echo " Starting screen session"
-	screen -d -m -S zomboid
+	screen -L -d -m -S zomboid
 	echo
 
 	echo -n `date` && echo " Starting Project Zomboid"
 	say_this "cd $BASEDIR"
 	say_this "./start-server.sh"
+
 	echo -ne '           (00%)\r'
 	sleep 15
 	echo -ne '##         (25%)\r'
@@ -101,7 +102,7 @@ stop()
 
 title="\e[1mZomboid server control panel\e[0m"
 prompt="Pick an option: "
-options=("Start server" "Stop server" "Restart server" "Update stopped server" "Update running server" "Quit")
+options=("Start server" "Stop server" "Restart server" "Update server" "Quit")
 
 echo -e $title 1>&3
 if screen -list | grep -q "zomboid"; then
@@ -110,37 +111,49 @@ else
 	echo -e "Screen session is \e[31mnot running\e[0m." 1>&3
 fi
 echo 1>&3
+
 PS3="$prompt"
 select opt in "${options[@]}"
 do
     case $opt in
         "Start server")
-            echo "Starting server..." | tee /dev/fd/3
-            start | tee /dev/fd/3
-            echo "Complete." | tee /dev/fd/3
-            ;;
+			if [[! screen -list | grep -q "zomboid"]]; then
+	            echo "Starting server..." | tee /dev/fd/3
+	            start | tee /dev/fd/3
+	            echo "Complete." | tee /dev/fd/3
+	        else
+	        	echo "Server is already running."
+	        fi
+	        ;;
         "Stop server")
-            echo "Stopping server..." | tee /dev/fd/3
-            stop | tee /dev/fd/3
-            echo "Complete." | tee /dev/fd/3
-            clear
-            ;;
+			if [[screen -list | grep -q "zomboid"]]; then
+	            echo "Stopping server..." | tee /dev/fd/3
+	            stop | tee /dev/fd/3
+	            echo "Complete." | tee /dev/fd/3
+	        else
+	        	echo "Server is already stopped."
+	        fi
+	        ;;
         "Restart server")
-            echo "Restarting server..." | tee /dev/fd/3
-            stop | tee /dev/fd/3
-            start | tee /dev/fd/3
-            echo "Complete." | tee /dev/fd/3
-            clear
-            ;;
-        "Update stopped server")
-            echo "Updating server..." | tee /dev/fd/3
-            update | tee /dev/fd/3
-            echo "Complete." | tee /dev/fd/3
-            ;;
-        "Update running server")
-			echo "Updating server..." | tee /dev/fd/3
-			updateRunning | tee /dev/fd/3
-			echo "Complete." | tee /dev/fd/3
+			if [[screen -list | grep -q "zomboid"]]; then
+	            echo "Restarting server..." | tee /dev/fd/3
+	            stop | tee /dev/fd/3
+	            start | tee /dev/fd/3
+	            echo "Complete." | tee /dev/fd/3
+	        else
+	        	echo "Server is not running."
+	        fi
+	        ;;
+        "Update server")
+			if [[screen -list | grep -q "zomboid"]]; then
+	            echo "Updating server..." | tee /dev/fd/3
+	            updateRunning | tee /dev/fd/3
+	            echo "Complete." | tee /dev/fd/3
+	        else
+				echo "Updating server..." | tee /dev/fd/3
+				update | tee /dev/fd/3
+				echo "Complete." | tee /dev/fd/3
+			fi
 			;;
         "Quit")
             exit
